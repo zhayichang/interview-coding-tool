@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>访谈稿件编码分析工具 - AI集成</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="hero-header">
+            <h1>👤 访谈稿件编码分析工具 · AI 嵌入版</h1>
+            <p>Designed by 猹猹🦡，Powered by DeepSeek🐳 --v2026.04.28</p>
+        </div>
+
+        <div class="step-indicator">
+            <div class="step" data-step="1"><span class="step-num">1</span> 研究定向+提纲解析</div>
+            <div class="step" data-step="2"><span class="step-num">2</span> 多用户访谈</div>
+            <div class="step" data-step="3"><span class="step-num">3</span> AI调用</div>
+            <div class="step" data-step="4"><span class="step-num">4</span> 分析结果展示</div>
+        </div>
+
+        <!-- 卡片1：研究定向 & 提纲解析 -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title"><span>📚 01. 研究定向 & 提纲层级解析</span></div>
+            </div>
+            <div class="card-body">
+                <div class="tab-header" style="margin-bottom: 1.5rem;">
+                    <button class="tab-btn active" data-tab="single">✍️ 单块输入 (默认)</button>
+                    <button class="tab-btn" data-tab="batch">📦 整体一键输入</button>
+                </div>
+                <div class="tab-content active" id="tab-single">
+                    <div class="research-vertical">
+                        <div class="research-field"><label>📌 访谈主题</label><textarea id="researchTopic" rows="3"
+                                placeholder="（选填）概括访谈的主题问题"></textarea></div>
+                        <div class="research-field"><label>📄 背景信息</label><textarea id="projectBackground" rows="4"
+                                placeholder="（选填）描述项目相关背景信息"></textarea></div>
+                        <div class="research-field"><label>🎯 研究目标</label><textarea id="researchBackground" rows="4"
+                                placeholder="（选填）描述希望回答的核心问题"></textarea></div>
+                        <div class="research-field"><label>📋 提纲维度</label><textarea id="interviewOutline" rows="8"
+                                placeholder="（必填）示例：&#10;1. 使用习惯&#10;1.1 使用频率&#10;1.2 使用场景&#10;2. 痛点分析"></textarea>
+                            <div id="outlinePreview" class="outline-preview" style="display:none;"><strong>📐
+                                    识别到的提纲层级：</strong>
+                                <div id="outlineTreeContainer" class="tree-root"></div>
+                            </div>
+                        </div>
+                        <div class="research-field"><label>⭐ 重点关注</label><textarea id="focusContent" rows="4"
+                                placeholder="（选填）请描述您希望AI在分析时特别关注的内容"></textarea>
+                            <div style="font-size:0.75rem; color:#475569;">💡 填写后，AI会优先提取相关原声和结论。</div>
+                        </div>
+                        <div class="research-field">
+                            <div class="checkbox-field"><input type="checkbox" id="allowExtraFindings"><label
+                                    for="allowExtraFindings">✨ 允许AI补充额外发现维度</label></div>
+                        </div>
+                        <div class="research-field"><label>✏️ 自定义指令</label><textarea id="customInstructions" rows="4"
+                                placeholder="（选填）例如：每个维度至少归纳2个核心观点"></textarea></div>
+                    </div>
+                    <div id="researchSaveMsg" class="status-msg"></div>
+                </div>
+                <div class="tab-content" id="tab-batch">
+                    <div class="batch-input-area">
+                        <div style="margin-bottom: 0.8rem;"><label style="font-weight: 500;">📁 上传文件（.txt /
+                                .md）</label><input type="file" id="batchFileInput" accept=".txt,.md"
+                                style="margin-top: 0.3rem;"></div>
+                        <div style="margin-bottom: 0.8rem;"><label style="font-weight: 500;">✍️ 或粘贴包含以下标题的完整文本：</label>
+                            <div style="font-size: 0.7rem; color: #3b82f6;">【访谈主题】、【背景信息】、【研究目标】、【提纲维度】、【重点关注】、【自定义指令】
+                            </div>
+                            <textarea id="batchText" rows="12" class="batch-textarea"
+                                placeholder="示例格式：&#10;【访谈主题】智能客服使用体验研究&#10;【背景信息】企业上线AI客服半年..."></textarea>
+                        </div>
+                        <div class="button-group"><button id="clearBatchBtn" class="btn btn-outline">🗑️
+                                清空文本</button><button id="parseBatchBtn" class="btn btn-primary">📝 解析并填充到表单</button>
+                        </div>
+                        <div id="batchMsg" class="status-msg"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer"><button id="clearResearchBtn" class="btn btn-outline">🗑️ 清空</button><button
+                    id="saveResearchBtn" class="btn btn-success">✅ 保存研究定向 & 解析提纲</button></div>
+        </div>
+
+        <!-- 卡片2：多用户访谈文本 -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title"><span>👥 02. 多用户访谈文本</span></div>
+            </div>
+            <div class="card-body">
+                <div id="usersContainer" class="users-container"></div><button id="addUserBtn" class="add-user-btn">+
+                    添加受访者</button>
+                <div id="textSaveMsg" class="status-msg"></div>
+            </div>
+            <div class="card-footer"><button id="clearAllUsersBtn" class="btn btn-outline">🗑️ 清空所有用户</button><button
+                    id="saveAllUsersBtn" class="btn btn-success">✅ 保存所有用户</button></div>
+        </div>
+
+        <!-- 卡片3：生成定向AI Prompt + DeepSeek API 集成 + 手动粘贴JSON -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title"><span>🤖 03. 生成定向AI Prompt & 智能分析</span></div><span class="badge-icon">DeepSeek
+                    驱动</span>
+            </div>
+            <div class="card-body">
+                <!-- API 配置区域 -->
+                <div class="api-config-area"
+                    style="background: #f0f9ff; padding: 1rem; border-radius: 1rem; margin-bottom: 1.5rem; border: 1px solid #b9d9ff;">
+                    <div style="display: flex; flex-wrap: wrap; gap: 1rem; align-items: flex-end;">
+                        <div style="flex: 2; min-width: 200px;">
+                            <label style="font-weight: 600; font-size: 0.8rem;">🔑 DeepSeek API Key</label>
+                            <input type="password" id="deepseekApiKey" class="api-key-input"
+                                placeholder="sk-xxxxxxxxxxxxxxxx"
+                                style="width: 100%; padding: 0.5rem; border-radius: 2rem; border: 1px solid #cbd5e1;">
+                        </div>
+                        <div style="flex: 1;">
+                            <label style="font-weight: 600; font-size: 0.8rem;">🌐 模型</label>
+                            <select id="modelSelect"
+                                style="padding: 0.5rem; border-radius: 2rem; border: 1px solid #cbd5e1;">
+                                <option value="deepseek-v4-flash">DeepSeek-V4-Flash</option>
+                                <option value="deepseek-v4-pro">DeepSeek-V4-Pro</option>
+                            </select>
+                        </div>
+                        <div style="display: flex; gap: 0.5rem; align-items: center;">
+                            <label style="font-size: 0.75rem;"><input type="checkbox" id="rememberApiKey"> 记住Key</label>
+                            <button id="clearApiKeyBtn" class="btn-outline" style="padding: 0.3rem 0.8rem;">清除</button>
+                        </div>
+                    </div>
+                    <div style="margin-top: 0.6rem; font-size: 0.7rem; color: #3b7cbf;">💡 输入您的DeepSeek API Key，点击下方「🚀
+                        一键发送至DeepSeek」自动分析并展示结果。</div>
+                </div>
+
+                <div class="button-group" style="margin-top:0;">
+                    <button id="generatePromptBtn" class="btn btn-primary" disabled>✨ 生成完整Prompt并复制</button>
+                    <button id="callDeepSeekBtn" class="btn btn-success" disabled style="background: #0d9488;">🚀
+                        一键发送至DeepSeek并自动解析</button>
+                </div>
+                <div id="apiCallStatus" class="status-msg" style="margin-top: 0.5rem; font-weight: 500;"></div>
+                <div style="margin-top: 1rem;">
+                    <div style="font-weight:500; font-size:0.85rem;">📌 Prompt预览</div>
+                    <div id="promptPreview" class="preview-box" style="max-height: 220px;">点击「生成Prompt」后显示完整指令+多用户访谈内容
+                    </div>
+                    <div class="status-msg" id="promptStatusMsg"></div>
+                </div>
+
+                <!-- 手动粘贴区域（折叠） -->
+                <div style="margin-top:1rem; border-top: 1px solid #e2e8f0; padding-top:0.5rem;">
+                    <button id="toggleManualBtn" class="toggle-manual-btn">📋 手动粘贴AI返回的JSON结果（备选）▶</button>
+                    <div id="manualPasteSection" style="display: none;">
+                        <div class="manual-json-area" style="margin-top:0.5rem;">
+                            <h4>📋 粘贴AI返回的JSON</h4>
+                            <p style="font-size:0.75rem; color:#475569; margin-bottom:0.5rem;">
+                                如果您已通过其他方式调用AI并获得JSON结果，请粘贴到下方，点击「解析并展示」即可生成报告。
+                            </p>
+                            <textarea id="manualJsonInput" rows="10"
+                                placeholder='粘贴AI返回的JSON，例如：&#10;{&#10;  "outline_insights": [...],&#10;  "additional_findings": [...],&#10;  "user_profiles": [...]&#10;}'
+                                style="font-family: monospace; font-size:0.8rem;"></textarea>
+                            <div class="button-group" style="margin-top:0.5rem;">
+                                <button id="parseManualJsonBtn" class="btn btn-primary">🔍 解析并展示</button>
+                                <button id="clearManualJsonBtn" class="btn btn-outline">🗑️ 清空</button>
+                            </div>
+                            <div id="manualParseStatus" class="status-msg"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer" style="justify-content: flex-start; background:#f8fafc;">📎
+                流程提示：可选择自动调用API或手动粘贴AI结果JSON，两者效果相同。</div>
+        </div>
+
+        <!-- 卡片4：AI结果回传 & 提纲洞察报告 -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title"><span>📊 04. AI 结果报告</span></div>
+            </div>
+            <div class="card-body">
+                <div id="vizContainer" class="coding-viz" style="margin-top: 0;">
+                    <div class="empty-placeholder">✨ 等待AI分析结果，将按提纲树形结构展示结论与用户原声。</div>
+                </div>
+                <div id="jsonSaveMsg" class="status-msg"></div>
+            </div>
+            <div class="card-footer"><button id="exportReportBtn" class="btn btn-report" disabled>📑
+                    导出Markdown报告</button></div>
+        </div>
+        <footer>访谈稿件编码分析工具 2026.04.28 ｜ Designed by 猹猹🦡 ｜ Powered by DeepSeek🐳</footer>
+    </div>
+
+    <!-- 模态框 -->
+    <div id="codeModal" class="modal">
+        <div class="modal-content"><span class="close-modal">&times;</span>
+            <h3 id="modalCodeName">节点详情</h3>
+            <p><strong>结论：</strong> <span id="modalDesc"></span></p>
+            <p><strong>原文引述：</strong></p>
+            <div id="modalExamples" class="examples-list"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
