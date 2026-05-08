@@ -74,8 +74,8 @@ function initTabs() {
 function showToast(message, isError = false) {
     const toast = document.createElement('div');
     toast.className = 'toast-notify';
-    if (isError) toast.style.background = 'rgba(185, 28, 28, 0.9)';
-    else toast.style.background = 'rgba(0, 0, 0, 0.85)';
+    if (isError) toast.style.background = 'rgba(185, 28, 28, 0.95)';
+    else toast.style.background = 'rgba(15, 23, 42, 0.92)';
     toast.textContent = message;
     document.body.appendChild(toast);
     setTimeout(() => toast.remove(), 1500);
@@ -686,18 +686,31 @@ clearApiKeyBtn.addEventListener('click', () => {
     showToast("API Key 已清除");
 });
 
+// ---------- API Key 显示/隐藏切换 ----------
+const apiKeyToggle = document.querySelector('.api-key-toggle');
+if (apiKeyToggle) {
+    apiKeyToggle.addEventListener('click', () => {
+        const type = deepseekApiKeyInput.type === 'password' ? 'text' : 'password';
+        deepseekApiKeyInput.type = type;
+        apiKeyToggle.textContent = type === 'password' ? '👁' : '🙈';
+    });
+}
+
 // ---------- 手动粘贴区域折叠切换 ----------
 const toggleManualBtn = document.getElementById('toggleManualBtn');
 const manualPasteSection = document.getElementById('manualPasteSection');
 let isManualExpanded = false;
 toggleManualBtn.addEventListener('click', () => {
     isManualExpanded = !isManualExpanded;
+    const icon = toggleManualBtn.querySelector('.toggle-icon-manual');
     if (isManualExpanded) {
         manualPasteSection.style.display = 'block';
-        toggleManualBtn.innerHTML = '📋 手动粘贴AI返回的JSON结果（备选）▼';
+        icon.textContent = '▼';
+        toggleManualBtn.querySelector('span:last-child').textContent = '手动粘贴AI返回的JSON结果（备选方案）';
     } else {
         manualPasteSection.style.display = 'none';
-        toggleManualBtn.innerHTML = '📋 手动粘贴AI返回的JSON结果（备选）▶';
+        icon.textContent = '▶';
+        toggleManualBtn.querySelector('span:last-child').textContent = '手动粘贴AI返回的JSON结果（备选方案）';
     }
 });
 
@@ -708,7 +721,6 @@ document.getElementById('generatePromptBtn').addEventListener('click', async () 
     currentFullPrompt = p;
     document.getElementById('promptPreview').innerText = p;
 
-    // 复制到剪贴板
     try {
         await navigator.clipboard.writeText(p);
         showToast("✅ Prompt 已复制到剪贴板！");
